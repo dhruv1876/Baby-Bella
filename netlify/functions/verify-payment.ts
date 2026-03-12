@@ -16,11 +16,13 @@ export const handler: Handler = async (event, context) => {
       .digest("hex");
 
     if (razorpay_signature === expectedSign) {
+      const telegramLink = process.env.TELEGRAM_LINK || "https://t.me/joinchat/placeholder";
+      console.log("Payment verified successfully. Returning link:", telegramLink);
       return {
         statusCode: 200,
         body: JSON.stringify({ 
           success: true, 
-          telegram_link: process.env.TELEGRAM_LINK || "https://t.me/joinchat/placeholder" 
+          telegram_link: telegramLink 
         }),
       };
     } else {

@@ -7,6 +7,7 @@ import {
   PlayCircle, 
   ArrowRight, 
   Lock, 
+  Check,
   Clock, 
   Play,
   CheckCircle2,
@@ -38,6 +39,8 @@ export default function App() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [price, setPrice] = useState(899);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [telegramLink, setTelegramLink] = useState("");
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
@@ -114,14 +117,24 @@ export default function App() {
         description: "Private Telegram Access",
         order_id: order.id,
         handler: async function (response: any) {
+          console.log("Payment response received:", response);
           const verifyRes = await fetch('/api/verify-payment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(response),
           });
           const result = await verifyRes.json();
+          console.log("Verification result:", result);
+          
           if (result.success) {
-            window.location.href = result.telegram_link;
+            setTelegramLink(result.telegram_link);
+            setPaymentSuccess(true);
+            setIsRedirecting(false);
+            
+            // Attempt auto-redirect
+            setTimeout(() => {
+              window.location.href = result.telegram_link;
+            }, 1000);
           } else {
             alert("Payment verification failed. Please contact support.");
             setIsRedirecting(false);
@@ -414,6 +427,36 @@ export default function App() {
           <CheckCircle2 className="w-3 h-3 text-blue-400 fill-blue-400/20" />
         </p>
       </div>
+
+      {/* --- SUCCESS MODAL --- */}
+      {paymentSuccess && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-900 p-8 text-center shadow-2xl"
+          >
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-500">
+                <Check className="h-10 w-10" />
+              </div>
+            </div>
+            <h2 className="mb-2 text-2xl font-bold text-white">Payment Successful!</h2>
+            <p className="mb-8 text-zinc-400">
+              You're all set! Click the button below to join the private Telegram group.
+            </p>
+            <a 
+              href={telegramLink}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 py-4 font-bold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            >
+              Join Private Telegram <ArrowRight className="h-5 w-5" />
+            </a>
+            <p className="mt-4 text-xs text-zinc-500">
+              If the button doesn't work, please check your internet connection.
+            </p>
+          </motion.div>
+        </div>
+      )}
 
       <style>{`
         @keyframes shimmer {

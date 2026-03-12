@@ -58,10 +58,11 @@ app.post("/api/verify-payment", async (req, res) => {
     .digest("hex");
 
   if (razorpay_signature === expectedSign) {
-    // Payment verified
+    const telegramLink = process.env.TELEGRAM_LINK || "https://t.me/joinchat/placeholder";
+    console.log("Payment verified (local). Returning link:", telegramLink);
     res.json({ 
       success: true, 
-      telegram_link: process.env.TELEGRAM_LINK || "https://t.me/joinchat/placeholder" 
+      telegram_link: telegramLink 
     });
   } else {
     res.status(400).json({ success: false, message: "Invalid signature" });
