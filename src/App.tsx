@@ -11,8 +11,12 @@ import {
   Clock, 
   Play,
   CheckCircle2,
-  ChevronRight
+  ChevronRight,
+  X,
+  Mail
 } from 'lucide-react';
+
+import { LegalModal } from './components/LegalPages';
 
 // --- Local Assets ---
 import bannerImg from './assets/images/banner3.png';
@@ -41,6 +45,7 @@ export default function App() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [telegramLink, setTelegramLink] = useState("");
+  const [legalPage, setLegalPage] = useState<'privacy' | 'terms' | 'refund' | 'contact' | null>(null);
   const [activeVideo, setActiveVideo] = useState<number | null>(null);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
 
@@ -426,7 +431,23 @@ export default function App() {
           Payments processed via manager <span className="text-gray-300 font-bold">Futurehometech</span>
           <CheckCircle2 className="w-3 h-3 text-blue-400 fill-blue-400/20" />
         </p>
+
+        {/* --- FOOTER LINKS --- */}
+        <div className="mt-6 pt-6 border-t border-white/5 flex flex-wrap justify-center gap-x-4 gap-y-2 text-[10px] text-zinc-500 font-medium uppercase tracking-wider">
+          <button onClick={() => setLegalPage('privacy')} className="hover:text-zinc-300 transition-colors">Privacy Policy</button>
+          <button onClick={() => setLegalPage('terms')} className="hover:text-zinc-300 transition-colors">Terms of Service</button>
+          <button onClick={() => setLegalPage('refund')} className="hover:text-zinc-300 transition-colors">Refund Policy</button>
+          <button onClick={() => setLegalPage('contact')} className="hover:text-zinc-300 transition-colors">Contact Us</button>
+        </div>
+        <p className="mt-4 text-[9px] text-zinc-600 text-center">© 2026 Baby Bella Private. All rights reserved.</p>
       </div>
+
+      {/* --- LEGAL MODAL --- */}
+      <AnimatePresence>
+        {legalPage && (
+          <LegalModal type={legalPage} onClose={() => setLegalPage(null)} />
+        )}
+      </AnimatePresence>
 
       {/* --- SUCCESS MODAL --- */}
       {paymentSuccess && (
